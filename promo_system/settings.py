@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'promo_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE':   envvars_config('DATABASE_ENGINE'),
+        'NAME':     envvars_config('DATABASE_NAME'),
+        'USER':     envvars_config('DATABASE_USER'),
+        'PASSWORD': envvars_config('DATABASE_PASSWORD'),
+        'HOST':     envvars_config('DATABASE_HOST'),
+        'PORT':     envvars_config('DATABASE_PORT')
     }
 }
 
