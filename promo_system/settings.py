@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from pathlib import Path
 
-from decouple import config as envvars_config
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = envvars_config('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = envvars_config('DEBUG') == 'True'
+DEBUG = os.environ.get('DEBUG') == 'True'
 
 ALLOWED_HOSTS = [
     'https://promo-system.herokuapp.com/',
@@ -93,12 +91,12 @@ WSGI_APPLICATION = 'promo_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE':   envvars_config('DATABASE_ENGINE'),
-        'NAME':     envvars_config('DATABASE_NAME'),
-        'USER':     envvars_config('DATABASE_USER'),
-        'PASSWORD': envvars_config('DATABASE_PASSWORD'),
-        'HOST':     envvars_config('DATABASE_HOST'),
-        'PORT':     envvars_config('DATABASE_PORT')
+        'ENGINE':   os.environ.get('DATABASE_ENGINE'),
+        'NAME':     os.environ.get('DATABASE_NAME'),
+        'USER':     os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST':     os.environ.get('DATABASE_HOST'),
+        'PORT':     os.environ.get('DATABASE_PORT')
     }
 }
 

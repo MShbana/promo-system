@@ -33,18 +33,19 @@ promos and can use the promo points in a specific task of their choosing.
     - `source promo-system-venv/bin/activate`
     - `pip install -r requirements.txt`
     - `cd promo-system`
-    - `nano .env`
+    - `nano ~/.bashrc`
         ```
-        DEBUG=True
-        SECRET_KEY=<placeholder>
+        export DEBUG=True
+        export SECRET_KEY=<placeholder>
 
-        DATABASE_ENGINE=django.db.backends.postgresql
-        DATABASE_NAME=<database_name>
-        DATABASE_HOST=localhost
-        DATABASE_PORT=5432
-        DATABASE_USER=<database_user>
-        DATABASE_PASSWORD=<database_use_password>
+        export DATABASE_ENGINE=django.db.backends.postgresql
+        export DATABASE_NAME=<database_name>
+        export DATABASE_HOST=localhost
+        export DATABASE_PORT=5432
+        export DATABASE_USER=<database_user>
+        export DATABASE_PASSWORD=<database_use_password>
         ```
+    - Open a new terminal.
     - `python manage.py shell`
         ```
         from django.core.management.utils import get_random_secret_key
