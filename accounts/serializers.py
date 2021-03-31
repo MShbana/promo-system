@@ -80,7 +80,7 @@ class GetNormalUserSerializer(serializers.ModelSerializer):
         fields = [
             'username',
             'name',
-            'mobile',
+            'mobile_number',
             'address',
             'auth_token'
         ]
@@ -118,6 +118,13 @@ class RegisterNormalUserSerializer(CreateAuthUserSerializer):
     """
     The main admin registeration API serializer.
     """
+
+    mobile_number = serializers.CharField(
+        max_length=15
+    )
+    class Meta(CreateAuthUserSerializer.Meta):
+        fields = CreateAuthUserSerializer.Meta.fields + ['mobile_number',]
+
     def create(self, validated_data):
         if not do_passwords_match(self.validated_data):
             raise serializers.ValidationError(
@@ -131,4 +138,4 @@ class RegisterNormalUserSerializer(CreateAuthUserSerializer):
         """
         Return a custom response from the GetNormalUserSerializer.
         """
-        return RegisterNormalUserSerializerGet(instance).data
+        return GetNormalUserSerializer(instance).data

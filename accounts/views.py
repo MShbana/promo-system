@@ -11,11 +11,19 @@ class RegisterAdminUser(APIView):
     def post(self, request, format=None):
         serializer = serializers.RegisterAdminUserSerializer(data=request.data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class RegisterNormalUser(APIView):
+    def post(self, request, format=None):
+        serializer = serializers.RegisterNormalUserSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
