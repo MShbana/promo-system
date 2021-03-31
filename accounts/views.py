@@ -9,7 +9,7 @@ from . import serializers
 
 class RegisterAdminUser(APIView):
     def post(self, request, format=None):
-        serializer = serializers.RegisterAdminSerializerPost(data=request.data)
+        serializer = serializers.RegisterAdminUserSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
