@@ -26,4 +26,8 @@ urlpatterns = [
         'accounts/',
         include('accounts.urls')
     ),
+    path(
+        'promos/',
+        include('promos.urls')
+    ),
 ]
