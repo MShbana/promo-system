@@ -1,4 +1,8 @@
-from .models import AdministratorUser, NormalUser, User
+from .models import (
+    AdministratorUser,
+    NormalUser,
+    User
+)
 
 
 class RegisterUserBase():

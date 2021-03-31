@@ -5,14 +5,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from . import serializers
+from .serializers import (
+    RegisterAdminUserSerializer,
+    RegisterNormalUserSerializer
+)
 
 
 class RegisterAdminUser(APIView):
     permission_classes = [AllowAny, ]
 
     def post(self, request, format=None):
-        serializer = serializers.RegisterAdminUserSerializer(data=request.data)
+        serializer = RegisterAdminUserSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
@@ -25,7 +28,7 @@ class RegisterNormalUser(APIView):
     permission_classes = [AllowAny, ]
 
     def post(self, request, format=None):
-        serializer = serializers.RegisterNormalUserSerializer(data=request.data)
+        serializer = RegisterNormalUserSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)

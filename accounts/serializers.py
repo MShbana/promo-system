@@ -2,7 +2,10 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 from .models import User
-from .services import RegisterAdminUser, RegisterNormalUser
+from .services import (
+    RegisterAdminUser,
+    RegisterNormalUser
+)
 
 
 class CreateAuthUserSerializer(serializers.ModelSerializer):

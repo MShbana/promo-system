@@ -3,14 +3,22 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from . import forms, models
+from .forms import (
+    UserAdminChangeForm,
+    UserAdminCreationForm
+)
+from .models import (
+    NormalUser,
+    AdministratorUser
+)
+
 
 User = get_user_model()
 
 
 class UserAdmin(BaseUserAdmin):
-    add_form = forms.UserAdminCreationForm
-    form = forms.UserAdminChangeForm
+    add_form = UserAdminCreationForm
+    form = UserAdminChangeForm
 
     add_fieldsets = (
         ('Login Info', {'fields': ('username', 'password', 'password2')}),
@@ -80,5 +88,5 @@ class AdministratorUserAdmin(admin.ModelAdmin):
 
 admin.site.unregister(Group)
 admin.site.register(User, UserAdmin)
-admin.site.register(models.NormalUser, NormalUserAdmin)
-admin.site.register(models.AdministratorUser, AdministratorUserAdmin)
+admin.site.register(NormalUser, NormalUserAdmin)
+admin.site.register(AdministratorUser, AdministratorUserAdmin)
