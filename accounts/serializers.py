@@ -2,12 +2,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 from .models import User
-from .services import (
-    create_admin_user,
-    create_normal_user,
-    do_passwords_match,
-    existing_user_name
-)
+from .services import RegisterAdminUser, RegisterNormalUser
 
 
 class CreateAuthUserSerializer(serializers.ModelSerializer):
@@ -109,16 +104,18 @@ class RegisterAdminUserSerializer(CreateAuthUserSerializer):
     The main admin registeration API serializer.
     """
     def create(self, validated_data):
-        if not do_passwords_match(self.validated_data):
+        reg_admin_user_service = RegisterAdminUser(self.validated_data)
+
+        if not reg_admin_user_service.do_passwords_match():
             raise serializers.ValidationError(
                 {'password': ['passwords do not match.']}
             )
-        if existing_user_name(self.validated_data):
+        if reg_admin_user_service.existing_user_name():
             raise serializers.ValidationError(
                 {'username': ['user with this username already exists.']}
             )
 
-        user = create_admin_user(self.validated_data)
+        user = reg_admin_user_service.create_admin_user()
         return user
 
     def to_representation(self, instance):
@@ -140,16 +137,18 @@ class RegisterNormalUserSerializer(CreateAuthUserSerializer):
         fields = CreateAuthUserSerializer.Meta.fields + ['mobile_number',]
 
     def create(self, validated_data):
-        if not do_passwords_match(self.validated_data):
+        reg_normal_user_service = RegisterNormalUser(self.validated_data)
+
+        if not reg_normal_user_service.do_passwords_match():
             raise serializers.ValidationError(
                 {'password': ['passwords do not match.']}
             )
-        if existing_user_name(self.validated_data):
+        if reg_normal_user_service.existing_user_name():
             raise serializers.ValidationError(
                 {'username': ['user with this username already exists..']}
             )
 
-        user = create_normal_user(self.validated_data)
+        user = reg_normal_user_service.create_normal_user()
         return user
 
     def to_representation(self, instance):

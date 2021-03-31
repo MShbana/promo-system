@@ -1,64 +1,61 @@
-from .models import (
-    AdministratorUser,
-    NormalUser,
-    User
-)
+from .models import AdministratorUser, NormalUser, User
 
 
-def do_passwords_match(validated_data):
-    password = validated_data['password']
-    password2 = validated_data['password2']
-    return password == password2
+class RegisterUserBase():
+    def __init__(self, validated_data):
+        self.validated_data = validated_data
+
+    def do_passwords_match(self):
+        password = self.validated_data['password']
+        password2 = self.validated_data['password2']
+        return password == password2
+
+    def existing_user_name(self):
+        username = self.validated_data['username']
+        return User.objects.filter(username__iexact=username).exists()
+
+    def create_user(self, is_staff=False, is_superuser=False):
+        """
+        Create Auth User.
+        """
+        user = User(
+            username=self.validated_data['username'],
+            name=self.validated_data['name'],
+        )
+        user.set_password(
+            self.validated_data['password']
+        )
+        user.is_staff = is_staff
+        user.is_superuser = is_superuser
+        user.save()
+        return user
 
 
-def existing_user_name(validated_data):
-    username = validated_data['username']
-    return User.objects.filter(username__iexact=username).exists()
+class RegisterAdminUser(RegisterUserBase):
+    def create_admin_user(self):
+        """
+        Create Administrator User, and relate it to the created auth user object.
+        """
+        user = self.create_user(
+            is_staff=True,
+            is_superuser=True
+        )
+        AdministratorUser.objects.create(
+            user=user,
+            address=self.validated_data['address']
+        )
+        return user
 
 
-def create_user(validated_data, is_staff=False, is_superuser=False):
-    """
-    Create Auth User.
-    """
-    user = User(
-        username=validated_data['username'],
-        name=validated_data['name'],
-    )
-    user.set_password(
-        validated_data['password']
-    )
-    user.is_staff = is_staff
-    user.is_superuser = is_superuser
-    user.save()
-    return user
-
-
-def create_admin_user(validated_data):
-    """
-    Create Administrator User, and relate it to the created auth user object.
-    """
-    user = create_user(
-        validated_data,
-        is_staff=True,
-        is_superuser=True
-    )
-    AdministratorUser.objects.create(
-        user=user,
-        address=validated_data['address']
-    )
-    return user
-
-
-def create_normal_user(validated_data):
-    """
-    Create Administrator User, and relate it to the created auth user object.
-    """
-    user = create_user(
-        validated_data
-    )
-    NormalUser.objects.create(
-        user=user,
-        address=validated_data['address'],
-        mobile_number=validated_data['mobile_number']
-    )
-    return user
+class RegisterNormalUser(RegisterUserBase):
+    def create_normal_user(self):
+        """
+        Create Administrator User, and relate it to the created auth user object.
+        """
+        user = self.create_user()
+        NormalUser.objects.create(
+            user=user,
+            address=self.validated_data['address'],
+            mobile_number=self.validated_data['mobile_number']
+        )
+        return user
