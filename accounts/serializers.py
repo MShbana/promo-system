@@ -1,12 +1,37 @@
 from rest_framework import serializers
-from . import models
+from rest_framework.authtoken.models import Token
+
+from . import models, services
 
 
-class RegisterAdminSerializer(serializers.ModelSerializer):
+class RegisterAdminSerializerGet(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.User
+        fields = [
+            'username',
+            'name',
+            'address',
+            'auth_token'
+        ]
+
+    def get_address(self, obj):
+        return obj.administratoruser.address
+    
+    def get_auth_token(self, obj):
+        return Token.objects.get(user=obj)
+
+
+class RegisterAdminSerializerPost(serializers.ModelSerializer):
     password2 = serializers.CharField(
         style={'input_type': 'password'},
         write_only=True
     )
+
+    # allow_null is discouraged by the rest framework docs,
+    # allow_blank assures that address is sent for data consistency. 
+    # In case the user didn't add an address, it should be address:"".
     address = serializers.CharField(
         allow_blank=True
     )
@@ -24,12 +49,14 @@ class RegisterAdminSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
-    def create(self, validated_data):
-        user = models.User(
-            username=validated_data['username'],
-            name=self.validated_data['name'],
-        )
 
+    def to_representation(self, instance):
+        """
+        Return a custom response from the RegisterAdminSerializerGet.
+        """
+        return RegisterAdminSerializerGet(instance).data
+
+    def create(self, validated_data):
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
 
@@ -37,13 +64,7 @@ class RegisterAdminSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'password': 'Passwords do not match.'}
             )
-        user.set_password(validated_data['password'])
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
+        user = services.create_admin_user(self.validated_data)
 
-        models.AdministratorUser.objects.create(
-            user=user,
-            address=self.validated_data['address']
-        )
         return user
+
