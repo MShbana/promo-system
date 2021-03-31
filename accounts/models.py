@@ -1,7 +1,11 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 from .managers import UserManager
+
 
 class User(AbstractBaseUser, PermissionsMixin):
 
@@ -55,6 +59,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+@receiver(post_save, sender=User)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    """
+    Generate a token when a a new user object is created.
+    """
+    if created:
+        Token.objects.create(user=instance)
 
 
 class NormalUser(models.Model):
