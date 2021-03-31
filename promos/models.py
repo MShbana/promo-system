@@ -13,7 +13,7 @@ class Promo(models.Model):
     promo_type = models.CharField(
         max_length=255
     )
-    promo_amount = models.IntegerField(
+    promo_amount = models.PositiveIntegerField(
     )
     description = models.TextField(
     )
