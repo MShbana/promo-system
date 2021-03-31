@@ -27,7 +27,12 @@ SECRET_KEY = envvars_config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = envvars_config('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'https://promo-system.herokuapp.com/',
+    'localhost',
+    '127.0.0.1'
+
+]
 
 
 # Application definition
