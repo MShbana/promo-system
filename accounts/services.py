@@ -8,8 +8,13 @@ from .models import (
 def do_passwords_match(validated_data):
     password = validated_data['password']
     password2 = validated_data['password2']
-
     return password == password2
+
+
+def existing_user_name(validated_data):
+    username = validated_data['username']
+    return User.objects.filter(username__iexact=username).exists()
+
 
 def create_user(validated_data, is_staff=False, is_superuser=False):
     """
@@ -42,6 +47,7 @@ def create_admin_user(validated_data):
         address=validated_data['address']
     )
     return user
+
 
 def create_normal_user(validated_data):
     """

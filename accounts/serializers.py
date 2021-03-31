@@ -5,7 +5,8 @@ from .models import User
 from .services import (
     create_admin_user,
     create_normal_user,
-    do_passwords_match
+    do_passwords_match,
+    existing_user_name
 )
 
 
@@ -103,6 +104,10 @@ class RegisterAdminUserSerializer(CreateAuthUserSerializer):
             raise serializers.ValidationError(
                 {'password': ['Passwords do not match.']}
             )
+        if existing_user_name(self.validated_data):
+            raise serializers.ValidationError(
+                {'username': ['That username is already taken.']}
+            )
 
         user = create_admin_user(self.validated_data)
         return user
@@ -129,6 +134,10 @@ class RegisterNormalUserSerializer(CreateAuthUserSerializer):
         if not do_passwords_match(self.validated_data):
             raise serializers.ValidationError(
                 {'password': ['Passwords do not match.']}
+            )
+        if existing_user_name(self.validated_data):
+            raise serializers.ValidationError(
+                {'username': ['That username is already taken.']}
             )
 
         user = create_normal_user(self.validated_data)
