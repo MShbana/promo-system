@@ -16,9 +16,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(
         max_length=255
     )
-    address = models.TextField(
-        null=True,
-        blank=True
+    date_joined = models.DateTimeField(
+        auto_now_add=True
     )
     is_active = models.BooleanField(
         default=True
@@ -56,3 +55,35 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class NormalUser(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+    address = models.TextField(
+        null=True,
+        blank=True
+    )
+    mobile_number = models.CharField(
+        max_length=15,
+        null=True
+    )
+
+    def __str__(self):
+        return self.user.username
+
+
+class AdministratorUser(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+    address = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.user.username

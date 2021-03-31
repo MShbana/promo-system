@@ -4,7 +4,7 @@ from . import models
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, name, address=None, password=None, is_active=True, is_staff=False, is_superuser=False):
+    def create_user(self, username, name, password=None, is_active=True, is_staff=False, is_superuser=False):
         if not username:
             raise ValueError('User must have a username.')
 
@@ -20,7 +20,6 @@ class UserManager(BaseUserManager):
 
         user.set_password(password)
         user.name = name
-        user.address = address
         user.is_active = is_active
         user.is_staff = is_staff
         user.is_superuser = is_superuser
@@ -29,21 +28,19 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_staffuser(self, username, name, address=None, password=None):
+    def create_staffuser(self, username, name, password=None):
         user = self.create_user(
             username,
             name,
-            address,
             password=password,
             is_staff=True
         )
         return user
 
-    def create_superuser(self, username, name, address=None, password=None):
+    def create_superuser(self, username, name, password=None):
         user = self.create_user(
             username,
             name,
-            address,
             password=password,
             is_staff=True,
             is_superuser=True

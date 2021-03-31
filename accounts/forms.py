@@ -12,7 +12,7 @@ class UserAdminCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'name', 'address', ]
+        fields = ['username', 'name', ]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -35,7 +35,7 @@ class UserAdminChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'name', 'address', 'password', 'is_active', 'is_staff', 'is_superuser']
+        fields = ['username', 'name', 'password', 'is_active', 'is_staff', 'is_superuser']
 
     def clean_password(self):
         return self.initial['password']
