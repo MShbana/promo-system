@@ -102,11 +102,11 @@ class RegisterAdminUserSerializer(CreateAuthUserSerializer):
     def create(self, validated_data):
         if not do_passwords_match(self.validated_data):
             raise serializers.ValidationError(
-                {'password': ['Passwords do not match.']}
+                {'password': ['passwords do not match.']}
             )
         if existing_user_name(self.validated_data):
             raise serializers.ValidationError(
-                {'username': ['That username is already taken.']}
+                {'username': ['user with this username already exists.']}
             )
 
         user = create_admin_user(self.validated_data)
@@ -133,11 +133,11 @@ class RegisterNormalUserSerializer(CreateAuthUserSerializer):
     def create(self, validated_data):
         if not do_passwords_match(self.validated_data):
             raise serializers.ValidationError(
-                {'password': ['Passwords do not match.']}
+                {'password': ['passwords do not match.']}
             )
         if existing_user_name(self.validated_data):
             raise serializers.ValidationError(
-                {'username': ['That username is already taken.']}
+                {'username': ['user with this username already exists..']}
             )
 
         user = create_normal_user(self.validated_data)
