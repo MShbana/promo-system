@@ -1,19 +1,22 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path
 
-from . import views
+from .views import (
+    PromoAdminUser,
+    PromoNormalUser
+)
 
 
 router = DefaultRouter()
 
 router.register(
     r'admin-user',
-    views.PromoAdminUser,
+    PromoAdminUser,
     basename='promo_admin_user'
 )
 router.register(
     r'normal-user',
-    views.PromoNormalUser,
+    PromoNormalUser,
     basename='promo_normal_user'
 )
 

@@ -1,6 +1,8 @@
 from rest_framework import permissions
 
-from accounts.models import NormalUser
+from accounts.models import (
+    NormalUser
+)
 
 
 class IsNormalUserAndOwner(permissions.BasePermission):

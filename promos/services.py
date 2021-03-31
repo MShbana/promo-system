@@ -1,5 +1,3 @@
-from .models import Promo
-
 class DeductPromoAmount:
     def __init__(self, promo_obj, amt_to_deduct):
         self.promo_obj = promo_obj

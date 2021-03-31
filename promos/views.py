@@ -5,8 +5,20 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from . import models, permissions, serializers
-from .services import DeductPromoAmount
+from .models import (
+    Promo
+)
+from .permissions import (
+    IsNormalUserAndOwner
+)
+from .serializers import(
+    PromoAdminUserSerializer,
+    PromoNormalUserSerializerList,
+    PromoNormalUserSerializerRetreive
+)
+from .services import (
+    DeductPromoAmount
+)
 
 
 class PromoAdminUser(viewsets.ModelViewSet):
@@ -14,10 +26,9 @@ class PromoAdminUser(viewsets.ModelViewSet):
     Provide CREATE, READ, UPDATE & DELETE methods for admin users on promos.
     The token used to call this API must be an admin user's token.
     """
-
     permission_classes = [IsAdminUser,]
-    serializer_class = serializers.PromoAdminUserSerializer
-    queryset = models.Promo.objects.all()
+    serializer_class = PromoAdminUserSerializer
+    queryset = Promo.objects.all()
 
 
 class PromoNormalUser(
@@ -30,20 +41,19 @@ class PromoNormalUser(
     Provide CREATE, READ, UPDATE & DELETE methods for a normal users on their own promos.
     The token used to call this API must be a normal user's token (the owner of the promo).
     """
-
-    permission_classes = [IsAuthenticated, permissions.IsNormalUserAndOwner]
-    serializer_class = serializers.PromoNormalUserSerializerList
+    permission_classes = [IsAuthenticated, IsNormalUserAndOwner]
+    serializer_class = PromoNormalUserSerializerList
 
     def get_queryset(self):
-        return models.Promo.objects.filter(
+        return Promo.objects.filter(
             normal_user=self.request.user.normaluser,
             is_active=True
         )
 
     def get_serializer_class(self):
         if self.action == 'list':
-            return serializers.PromoNormalUserSerializerList
-        return serializers.PromoNormalUserSerializerRetreive
+            return PromoNormalUserSerializerList
+        return PromoNormalUserSerializerRetreive
 
     def update(self, request, *args, **kwargs):
         promo = self.get_object()

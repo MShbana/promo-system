@@ -1,6 +1,8 @@
 from django.contrib import admin
 
-from . import models
+from .models import (
+    Promo
+)
 
 
 class PromoAdmin(admin.ModelAdmin):
@@ -21,4 +23,4 @@ class PromoAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(models.Promo, PromoAdmin)
+admin.site.register(Promo, PromoAdmin)
