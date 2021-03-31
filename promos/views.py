@@ -7,28 +7,12 @@ from rest_framework.response import Response
 from . import models, serializers
 
 
-class PromoAdmin(viewsets.ViewSet):
-    authentication_classes = [TokenAuthentication,]
+class PromoAdmin(viewsets.ModelViewSet):
+    """
+    Provide CREATE, READ, UPDATE & DELETE methods for admin users on promos.
+    The token used to call this API must be an admin user's token.
+    """
 
     permission_classes = [IsAdminUser,]
-
-    def list(self, request):
-        queryset = models.Promo.objects.all()
-        serializer = serializers.PromoAdminSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-    def create(self, request):
-        pass
-
-    def retrieve(self, request, pk=None):
-        pass
-
-    def update(self, request, pk=None):
-        pass
-
-    def partial_update(self, request, pk=None):
-        pass
-
-    def destroy(self, request, pk=None):
-        pass
+    serializer_class = serializers.PromoAdminSerializer
+    queryset = models.Promo.objects.all()

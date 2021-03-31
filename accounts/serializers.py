@@ -50,15 +50,19 @@ class GetAdminUserSerializer(serializers.ModelSerializer):
     Passed to `to_representation` method in RegisterAdminUserSerializer.
     """
     address = serializers.SerializerMethodField()
-
+    id = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = [
+            'id',
             'username',
             'name',
             'address',
             'auth_token'
         ]
+
+    def get_id(self, obj):
+        return obj.administratoruser.id
 
     def get_address(self, obj):
         return obj.administratoruser.address
@@ -75,16 +79,21 @@ class GetNormalUserSerializer(serializers.ModelSerializer):
     """
     address = serializers.SerializerMethodField()
     mobile_number = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
+            'id',
             'username',
             'name',
             'mobile_number',
             'address',
             'auth_token'
         ]
+
+    def get_id(self, obj):
+        return obj.normaluser.id
 
     def get_address(self, obj):
         return obj.normaluser.address
