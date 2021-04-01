@@ -4,6 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_api_key.permissions import HasAPIKey
 
 from .serializers import (
     RegisterAdminUserSerializer,
@@ -12,7 +13,7 @@ from .serializers import (
 
 
 class RegisterAdminUser(APIView):
-    permission_classes = [AllowAny, ]
+    permission_classes = [HasAPIKey, ]
 
     def post(self, request, format=None):
         serializer = RegisterAdminUserSerializer(data=request.data)
