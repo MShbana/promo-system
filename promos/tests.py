@@ -31,12 +31,12 @@ class UserCreationTestCaseBase(APITestCase):
         admin_user_1, self.tkn_admin_user = self.create_admin_user()
 
         self.normal_user_1, self.tkn_normal_user_1 = self.create_normal_user(id=0)
-        self.normal_user_1_promos = self.create_normal_user_promos(self.normal_user_1, start_id=0, end_id=5)
-
         self.normal_user_2, self.tkn_normal_user_2 = self.create_normal_user(id=1)
-        self.normal_user_2_promos = self.create_normal_user_promos(self.normal_user_2, start_id=5, end_id=10)
-
         self.normal_user_3, self.tkn_normal_user_3 = self.create_normal_user(id=2)
+
+        self.create_normal_user_promos(self.normal_user_1, start_id=0, end_id=5)
+        self.create_normal_user_promos(self.normal_user_2, start_id=5, end_id=10)
+
 
     def create_admin_user(self):
         superuser_obj = User.objects.create_superuser(
@@ -66,9 +66,8 @@ class UserCreationTestCaseBase(APITestCase):
         return normal_user, token
 
     def create_normal_user_promos(self, normal_user_obj, start_id, end_id):
-        promos = []
         for index in range(start_id, end_id):
-            promo = Promo.objects.create(
+            Promo.objects.create(
                 normal_user=normal_user_obj,
                 promo_code=f'SomePromoCode_{index}',
                 promo_type=f'Some Type_{index}',
@@ -78,16 +77,6 @@ class UserCreationTestCaseBase(APITestCase):
                 end_time=self.end_time,
                 is_active=True
             )
-            promos.append(promo)
-        return promos
-
-class PromoAdminUserTestCase(UserCreationTestCaseBase):
-
-    def get_endpoint(self, action, obj_id_list=None):
-        return reverse(
-            f'promos:promo_admin_user-{action}',
-            args=obj_id_list
-        )
 
     def authenticate(self, token):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
@@ -98,8 +87,35 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
     def authorize_normal_user_1(self):
         self.authenticate(self.tkn_normal_user_1)
 
+    def authorize_normal_user_2(self):
+        self.authenticate(self.tkn_normal_user_2)
+
     def revoke_authorization(self):
         self.client.force_authenticate(user=None)
+
+    def get_normal_user_1_promos(self):
+        return Promo.objects.filter(normal_user=self.normal_user_1)
+
+    def get_first_normal_user_1_promo_obj(self):
+        return self.get_normal_user_1_promos().first()
+
+class PromoAdminUserTestCase(UserCreationTestCaseBase):
+    def get_endpoint(self, action, obj_id_list=None):
+        return reverse(
+            f'promos:promo_admin_user-{action}',
+            args=obj_id_list
+        )
+
+    def get_req_body(self):
+        return {
+            'normal_user': self.normal_user_1.id,
+            'promo_code': 'AdminCreatedPromoCode',
+            'promo_type': 'Some Type',
+            'promo_amount': 100,
+            'description': 'Some Description',
+            'start_time': self.start_time,
+            'end_time': self.end_time
+        }
 
     def test_success_list_authorized_admin_user(self):
         self.authorize_admin_user()
@@ -131,12 +147,9 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
             status.HTTP_403_FORBIDDEN
         )
 
-    def get_first_normal_user_1_promo_id(self):
-        return self.normal_user_1_promos[0]
-
     def test_success_retreive_authorized_admin_user(self):
         self.authorize_admin_user()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.get(
             self.get_endpoint('detail', [obj_id])
@@ -148,7 +161,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_retreive_unauthorized(self):
         self.revoke_authorization()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.get(
             self.get_endpoint('detail', [obj_id])
@@ -160,7 +173,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_retreive_authorized_normal_user(self):
         self.authorize_normal_user_1()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.get(
             self.get_endpoint('detail', [obj_id])
@@ -172,7 +185,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_success_patch_authorized_admin_user(self):
         self.authorize_admin_user()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         promo_type_before = obj.promo_type
         response = self.client.patch(
@@ -190,7 +203,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_patch_unauthorized(self):
         self.revoke_authorization()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.patch(
             self.get_endpoint('detail', [obj_id]),
@@ -203,7 +216,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_patch_authorized_normal_user(self):
         self.authorize_normal_user_1()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.patch(
             self.get_endpoint('detail', [obj_id]),
@@ -216,7 +229,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_success_delete_authorized_admin_user(self):
         self.authorize_admin_user()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.delete(
             self.get_endpoint('detail', [obj_id])
@@ -228,7 +241,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_delete_unauthorized(self):
         self.revoke_authorization()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.delete(
             self.get_endpoint('detail', [obj_id])
@@ -240,7 +253,7 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_delete_authorized_normal_user(self):
         self.authorize_normal_user_1()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.delete(
             self.get_endpoint('detail', [obj_id])
@@ -250,24 +263,13 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
             status.HTTP_403_FORBIDDEN
         )
 
-    def new_obj_data(self):
-        return {
-            'normal_user': self.normal_user_1.id,
-            'promo_code': 'AdminCreatedPromoCode',
-            'promo_type': 'Some Type',
-            'promo_amount': 100,
-            'description': 'Some Description',
-            'start_time': self.start_time,
-            'end_time': self.end_time
-        }
-
     def test_success_create_authorized_admin_user(self):
         self.authorize_admin_user()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.delete(
             self.get_endpoint('detail', [obj_id]),
-            data=self.new_obj_data()
+            data=self.get_req_body()
         )
         self.assertEqual(
             response.status_code,
@@ -276,11 +278,11 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_create_unauthorized(self):
         self.revoke_authorization()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.delete(
             self.get_endpoint('detail', [obj_id]),
-            data=self.new_obj_data()
+            data=self.get_req_body()
         )
         self.assertEqual(
             response.status_code,
@@ -289,11 +291,11 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
     def test_fail_create_authorized_normal_user(self):
         self.authorize_normal_user_1()
-        obj = self.get_first_normal_user_1_promo_id()
+        obj = self.get_first_normal_user_1_promo_obj()
         obj_id = obj.id
         response = self.client.delete(
             self.get_endpoint('detail', [obj_id]),
-            data=self.new_obj_data()
+            data=self.get_req_body()
         )
         self.assertEqual(
             response.status_code,
@@ -303,4 +305,227 @@ class PromoAdminUserTestCase(UserCreationTestCaseBase):
 
 
 class PromoNormalUserTestCase(UserCreationTestCaseBase):
-    pass
+    def get_endpoint(self, action, obj_id_list=None):
+        return reverse(
+            f'promos:promo_normal_user-{action}',
+            args=obj_id_list
+        )
+
+    def test_success_list_authorized_normal_user(self):
+        self.authorize_normal_user_1()
+        response = self.client.get(
+            self.get_endpoint('list')
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_fail_list_unauthorized(self):
+        self.revoke_authorization()
+        response = self.client.get(
+            self.get_endpoint('list')
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+    def test_fail_list_authorized_admin_user(self):
+        self.authorize_admin_user()
+        response = self.client.get(
+            self.get_endpoint('list')
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    def test_success_retreive_authorized_normal_user(self):
+        self.authorize_normal_user_1()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        response = self.client.get(
+            self.get_endpoint('detail', [obj_id])
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_fail_retreive_authorized_non_owner_normal_user(self):
+        self.authorize_normal_user_2()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        response = self.client.get(
+            self.get_endpoint('detail', [obj_id])
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+    def test_fail_retreive_unauthorized(self):
+        self.revoke_authorization()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        response = self.client.get(
+            self.get_endpoint('detail', [obj_id])
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+
+    def test_fail_retreive_authorized_admin_user(self):
+        self.authorize_admin_user()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        response = self.client.get(
+            self.get_endpoint('detail', [obj_id])
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    def get_correct_amt_to_deduct(self):
+        return 50
+    
+    def get_negative_amt_to_deduct(self):
+        return -1
+
+    def get_zero_amt_to_deduct(self):
+        return 0
+
+    def get_str_amt_to_deduct(self):
+        return '10'
+
+    def get_greater_than_available_amt_to_deduct(self):
+        return self.get_first_normal_user_1_promo_obj().promo_amount + 10
+
+    def test_success_patch_authorized_normal_user(self):
+        self.authorize_normal_user_1()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_before = obj.promo_amount
+        amt_to_deduct = self.get_correct_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+        self.assertNotEqual(
+            response.data['promo_amount'],
+            amt_before
+        )
+        self.assertEqual(
+            response.data['promo_amount'],
+            amt_before - amt_to_deduct
+        )
+
+    def test_fail_patch_authorized_normal_user_str_amt(self):
+        self.authorize_normal_user_1()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_before = obj.promo_amount
+        amt_to_deduct = self.get_str_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_fail_patch_authorized_normal_user_negative_amt(self):
+        self.authorize_normal_user_1()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_before = obj.promo_amount
+        amt_to_deduct = self.get_negative_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_fail_patch_authorized_normal_user_zero_amt(self):
+        self.authorize_normal_user_1()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_before = obj.promo_amount
+        amt_to_deduct = self.get_zero_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_fail_patch_authorized_normal_user_greater_amt(self):
+        self.authorize_normal_user_1()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_before = obj.promo_amount
+        amt_to_deduct = self.get_greater_than_available_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_fail_patch_authorized_non_owner_normal_user(self):
+        self.authorize_normal_user_2()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_to_deduct = self.get_correct_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+    def test_fail_patch_unauthorized(self):
+        self.revoke_authorization()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_to_deduct = self.get_correct_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+
+    def test_fail_patch_authorized_admin_user(self):
+        self.authorize_admin_user()
+        obj = self.get_first_normal_user_1_promo_obj()
+        obj_id = obj.id
+        amt_to_deduct = self.get_correct_amt_to_deduct()
+        response = self.client.patch(
+            self.get_endpoint('detail', [obj_id]),
+            data={'amt_to_deduct': amt_to_deduct}
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
