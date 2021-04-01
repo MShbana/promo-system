@@ -1,8 +1,4 @@
-import json
-from decouple import config as envvars_config
-
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework_api_key.models import APIKey
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -125,7 +121,7 @@ class RegisterNormalUserTestCase(APITestCase):
         )
 
 
-class LoginAdminUser(APITestCase):
+class LoginAdminUserTestCase(APITestCase):
     endpoint = reverse('accounts:login')
 
     def setUp(self):
@@ -133,12 +129,10 @@ class LoginAdminUser(APITestCase):
         Create an auth account and assign it to the new
         created admin user.
         """
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_superuser(
             username='correct_username',
             name='Test Admin1 Name',
             password='correct_password',
-            is_staff=True,
-            is_superuser=True
         )
         self.admin_user = AdministratorUser.objects.create(
             user=self.user,
@@ -188,7 +182,7 @@ class LoginAdminUser(APITestCase):
         )
 
 
-class LoginNormalUser(APITestCase):
+class LoginNormalUserTestCase(APITestCase):
     endpoint = reverse('accounts:login')
 
     def setUp(self):

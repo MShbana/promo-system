@@ -7,6 +7,8 @@ from .views import (
 )
 
 
+app_name = 'promos'
+
 router = DefaultRouter()
 
 router.register(
