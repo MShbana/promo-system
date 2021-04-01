@@ -21,6 +21,8 @@ promos and can use the promo points in a specific task of their choosing.
 
         ALTER ROLE <database_user> SET timezone TO 'UTC';
 
+        ALTER ROLE <database_user> CREATEDB;
+
         GRANT ALL PRIVILEGES ON DATABASE <database_name> TO <database_user>;
 
         \q
@@ -53,7 +55,7 @@ promos and can use the promo points in a specific task of their choosing.
         ```
     - `nano .env`
         ```
-        SECRET_KEY=<secret_key_generated_in_the_step_above>
+        SECRET_KEY=<secret_key_generated_in_the_previous_step>
         ```
     - `python manage.py migrate`
     - `python manage runserver`

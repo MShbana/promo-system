@@ -22,16 +22,13 @@ class RegisterUserBase():
         """
         Create Auth User.
         """
-        user = User(
+        user = User.objects.create_user(
             username=self.validated_data['username'],
             name=self.validated_data['name'],
+            password=self.validated_data['password'],
+            is_staff=is_staff,
+            is_superuser=is_superuser
         )
-        user.set_password(
-            self.validated_data['password']
-        )
-        user.is_staff = is_staff
-        user.is_superuser = is_superuser
-        user.save()
         return user
 
 
