@@ -85,9 +85,9 @@ promos and can use the promo points in a specific task of their choosing.
 
 
 ## Endpoints
-- **Base URL**
-    - Live: &nbsp;&nbsp;&nbsp; `https://promo-system.herokuapp.com/`
-    - local: &nbsp;&nbsp;&nbsp; `http://127.0.0.1:8000`
+- **Base URLs**
+    - Live: &nbsp;&nbsp;&nbsp; `https://promo-system.herokuapp.com`
+    - Local: &nbsp;&nbsp;&nbsp; `http://127.0.0.1:8000`
 
 - **Registration**
 
