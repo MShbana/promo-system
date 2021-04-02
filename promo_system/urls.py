@@ -15,9 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.http import HttpResponse
 
+github_project_url = 'https://github.com/MShbana/promo-system#endpoints'
 
 urlpatterns = [
+    path(
+        '',
+        lambda request: HttpResponse(
+            f"""
+            <h1>You can find all the avaialble endpoints in
+            <a href="{github_project_url}">GitHub</a></h1>
+            """
+        )
+    ),
     path(
         'admin/',
         admin.site.urls
