@@ -423,6 +423,3 @@ promos and can use the promo points in a specific task of their choosing.
             }
 
         ```
-
-## Postman collection:
-    https://www.getpostman.com/collections/9de9d84eb9994b6321b8
