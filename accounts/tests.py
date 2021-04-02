@@ -15,6 +15,9 @@ from .serializers import (
 
 
 class RegisterAdminUserTestCase(APITestCase):
+    """
+    Test admin user registration.
+    """
 
     endpoint = reverse('accounts:register_admin_user')
     user_data = {
@@ -82,6 +85,9 @@ class RegisterAdminUserTestCase(APITestCase):
 
 
 class RegisterNormalUserTestCase(APITestCase):
+    """
+    Test normal user registration.
+    """
 
     endpoint = reverse('accounts:register_normal_user')
     user_data = {
@@ -126,8 +132,7 @@ class LoginAdminUserTestCase(APITestCase):
 
     def setUp(self):
         """
-        Create an auth account and assign it to the new
-        created admin user.
+        Create an admin user account.
         """
         self.user = User.objects.create_superuser(
             username='correct_username',
@@ -140,6 +145,9 @@ class LoginAdminUserTestCase(APITestCase):
         )
 
     def test_success_login_admin_user(self):
+        """
+        Successful admin user login.
+        """
         user_data = {
             'username': 'correct_username',
             'password': 'correct_password'
@@ -154,6 +162,9 @@ class LoginAdminUserTestCase(APITestCase):
         )
 
     def test_fail_login_admin_user_with_wrong_username(self):
+        """
+        Failed admin user login due to wrong username.
+        """
         user_data = {
             'username': 'wrong_username',
             'password': 'correct_password'
@@ -168,6 +179,9 @@ class LoginAdminUserTestCase(APITestCase):
         )
 
     def test_fail_login_admin_user_with_wrong_password(self):
+        """
+        Failed admin user login due to wrong password.
+        """
         user_data = {
             'username': 'correct_username',
             'password': 'wrong_password'
@@ -187,8 +201,7 @@ class LoginNormalUserTestCase(APITestCase):
 
     def setUp(self):
         """
-        Create an auth account and assign it to the new
-        created normal user.
+        Create an normal user account.
         """
         self.user = User.objects.create_user(
             username='correct_username',
@@ -202,6 +215,9 @@ class LoginNormalUserTestCase(APITestCase):
         )
 
     def test_success_login_normal_user(self):
+        """
+        Successful normal user login.
+        """
         user_data = {
             'username': 'correct_username',
             'password': 'correct_password'
@@ -216,6 +232,9 @@ class LoginNormalUserTestCase(APITestCase):
         )
 
     def test_fail_login_normal_user_with_wrong_username(self):
+        """
+        Failed normal user login due to wrong username.
+        """
         user_data = {
             'username': 'wrong_username',
             'password': 'correct_password'
@@ -230,6 +249,9 @@ class LoginNormalUserTestCase(APITestCase):
         )
 
     def test_fail_login_normal_user_with_wrong_password(self):
+        """
+        Failed normal user login due to wrong password.
+        """
         user_data = {
             'username': 'correct_username',
             'password': 'wrong_password'

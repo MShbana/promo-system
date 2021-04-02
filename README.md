@@ -59,3 +59,370 @@ promos and can use the promo points in a specific task of their choosing.
         ```
     - `python manage.py migrate`
     - `python manage runserver`
+    - `python manage.py createsuperuser`
+        ```
+        Username: admin
+        Name: Admin Name
+        Password: <password>
+        Password (again): <password>
+
+        ```
+    - Create an API key to be able to register an admin user
+        ```
+        from rest_framework_api_key.models import APIKey
+        api_key, key = APIKey.objects.create_key(name="my-remote-service")
+        print(key)
+        ```
+    - Register an admin user, using the endpoint `POST {{base_url}}/accounts/register-admin-user/`,
+    passing the generated api key (from the step above) as the authorization header.
+        ```
+        headers {
+            Authorization: Api-Key <key>
+        }
+        ```
+    - All available API endpoints are explained in the section below.
+
+
+## Endpoints
+- **Base URL**
+    - Live: &nbsp;&nbsp;&nbsp; `https://promo-system.herokuapp.com/`
+    - local: &nbsp;&nbsp;&nbsp; `http://127.0.0.1:8000`
+
+- **Registration**
+
+    1. **Register Admin User** &nbsp;&nbsp;&nbsp; `POST {{base_url}}/accounts/register-admin-user/`
+
+        | Parameter     | Required  | type    | Notes   |
+        | :------------:| :--------:| :------:| :----  |
+        | Api-Key       | Yes       | string  | Sent to clients who consume the registration endpoint. |
+        | username      | Yes       | string  |         |
+        | name          | Yes       | string  |         |
+        | password      | Yes       | string  |         |
+        | password2     | Yes       | string  |         |
+        | address       | No        | string  | Must be sent as an empty string if it doesn't have a value. |
+
+        ```
+        - Request:
+            body sample: {
+                "username": <username>,
+                "name": <name>,
+                "password": <password>,
+                "password2": <password>,
+                "address": <address> 
+            }
+            headers sample: {
+                Authorization: Api-Key <client_api_key>
+            }
+
+        - Response:
+            success response status code: 201 Created
+            success response sample: {
+                "id": <normal_user_id>,
+                "username": <username>,
+                "name": <name>,
+                "address": <address_or_empty_str>,
+                "auth_token": <auth_token>
+            }
+        ```
+
+    2. **Register Normal User** &nbsp;&nbsp;&nbsp; `POST {{base_url}}/accounts/register-normal-user/`
+
+        | Parameter     | Required  | type    | Notes   |
+        | :------------:| :--------:| :------:| :----:  |
+        | username      | Yes       | string  |         |
+        | name          | Yes       | string  |         |
+        | password      | Yes       | string  |         |
+        | password2     | Yes       | string  |         |
+        | mobile_number | Yes       | string  | Must to not exceed 15 characters long. |
+        | address       | No        | string  | Must be sent as an empty string if it doesn't have a value. |
+
+        ```
+        - Request:
+            body sample: {
+                "username": <username>,
+                "name": <name>,
+                "password": <password>,
+                "password2": <password>,
+                "mobile_number": <mobile_number>,
+                "address": <address> 
+            }
+            headers sample: {
+                Authorization: Api-Key <client_api_key>
+            }
+
+        - Response:
+            success response status code: 201 Created
+            success response sample: {
+                "id": <normal_user_id>,
+                "username": <username>,
+                "name": <name>,
+                "mobile_number": <mobile_number
+                "address": <address_or_empty_str>,
+                "auth_token": <auth_token>
+            }
+        ```
+
+    3. **Login** &nbsp;&nbsp;&nbsp; `POST {{base_url}}/accounts/login/`
+
+        | Parameter     | Required  | type    | Notes   |
+        | :------------:| :--------:| :------:| :----:  |
+        | username      | Yes       | string  |         |
+        | password      | Yes       | string  |         |
+
+        ```
+        - Request:
+            body sample: {
+                "username": <username>,
+                "password": <password>,
+
+            }
+
+        - Response:
+            success response status code: 200 OK
+            success response sample: {
+                "auth_token": <authenticated_user_auth_token>
+            }
+        ```
+
+- Promos adminstrating
+
+    | Parameter      | Required     | type              | Notes     |
+    | :------------: | :------:     | :------:          |  :------: |
+    | normal_user    | Yes          | integer           | ID of the normal user to whom the promo is assigned.          |
+    | promo_code     | Yes          | string            |           |
+    | promo_type     | Yes          | string            |           |
+    | promo_amount   | Yes          | integer           |           |
+    | description    | Yes          | string            |           |
+    | start_time     | Yes          | dateTimeField     |           |
+    | end_time       | Yes          | dateTimeField     |           |
+    | is_active      | No           | boolean           | Defaults to true if not sent.          |
+
+
+    1. Create a promo: &nbsp;&nbsp;&nbsp; `POST {{base_url}}/promos/admin-user/`
+        
+        ```
+        - Request:
+            body sample: {
+                "normal_user": 2,
+                "promo_code": "SomePromoCode14",
+                "promo_type": "Some Type",
+                "promo_amount": 400,
+                "description": "Some Description",
+                "start_time": "2021-03-31T19:50:08",
+                "end_time": "2021-05-24T19:50:08"
+            }
+            headers = {
+                "Authorization": Token <admin_user_token>
+            }
+
+        - Response:
+            success response HTTP Status Code: 201 Created
+            success response sample: {
+                "id": 14,
+                "promo_code": "SomePromoCode14",
+                "promo_type": "Some Type",
+                "promo_amount": 400,
+                "description": "Some Description",
+                "creation_time": "2021-04-02T01:14:50.628092Z",
+                "start_time": "2021-03-31T19:50:08Z",
+                "end_time": "2021-05-24T19:50:08Z",
+                "is_active": true,
+                "normal_user": 2
+            }
+    2. List all existing promos: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/admin-user/`
+
+        ```
+        - Request:
+            headers = {
+                "Authorization": Token <admin_user_token>
+            }
+
+        - Response:
+            success response status code: 200 OK
+            success response sample: [
+                {
+                    "id": 1,
+                    "promo_code": "SomePromoCode1",
+                    "promo_type": "Some Type",
+                    "promo_amount": 100,
+                    "description": "Some Description",
+                    "creation_time": "2021-04-01T00:42:54.433292Z",
+                    "start_time": "2021-03-31T19:50:08Z",
+                    "end_time": "2021-05-24T19:50:08Z",
+                    "is_active": true,
+                    "normal_user": 3
+                },
+                {
+                    "id": 2,
+                    "promo_code": "SomePromoCode2",
+                    "promo_type": "Some Type",
+                    "promo_amount": 200,
+                    "description": "Some Description",
+                    "creation_time": "2021-04-01T00:44:25.731714Z",
+                    "start_time": "2021-03-31T19:50:08Z",
+                    "end_time": "2021-05-24T19:50:08Z",
+                    "is_active": true,
+                    "normal_user": 3
+                },
+                ...
+            ]
+        ```
+    
+    3. Retreive a promo: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/admin-user/<promo_id>`
+
+        ```
+        - Request:
+            headers = {
+                "Authorization": Token <admin_user_token>
+            }
+
+        - Response:
+            success response status code: 200 OK
+            success response sample: {
+                "id": 1,
+                "promo_code": "SomePromoCode1",
+                "promo_type": "Some Type",
+                "promo_amount": 100,
+                "description": "Some Description",
+                "creation_time": "2021-04-01T00:42:54.433292Z",
+                "start_time": "2021-03-31T19:50:08Z",
+                "end_time": "2021-05-24T19:50:08Z",
+                "is_active": true,
+                "normal_user": 3
+            }
+
+        ```
+    4. Update a promo: &nbsp;&nbsp;&nbsp; `PATCH {{base_url}}/promos/admin-user/<promo_id>`
+
+        *You can send one or more values to change.*
+
+        ```
+        - Request:
+            body sample: {
+                {
+                    "promo_type": "Promo Type Updated",
+                    "is_active": false
+                }
+            }
+            headers = {
+                "Authorization": Token <admin_user_token>
+            }
+
+        - Response:
+            success response HTTP Status Code: 200 OK
+            success response sample: {
+                "id": 1,
+                "promo_code": "SomePromoCode1",
+                "promo_type": "Promo Type Updated",
+                "promo_amount": 100,
+                "description": "Some Description",
+                "creation_time": "2021-04-01T00:42:54.433292Z",
+                "start_time": "2021-03-31T19:50:08Z",
+                "end_time": "2021-05-24T19:50:08Z",
+                "is_active": false,
+                "normal_user": 3
+            }
+
+        ```
+    5. Delete a promo: &nbsp;&nbsp;&nbsp; `DELETE {{base_url}}/promos/admin-user/<promo_id>`
+
+        ```
+        - Request:
+            body sample: {
+                {
+                    "promo_type": "Promo Type Updated",
+                    "is_active": false
+                }
+            }
+            headers = {
+                "Authorization": Token <admin_user_token>
+            }
+
+        - Response:
+            success response HTTP Status Code: 204 No Content
+            success response sample: None
+        ```
+
+- User promos
+    1. List all existing promos: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/normal-user/`
+        
+        ```
+        - Request:
+            headers = {
+                "Authorization": Token <normal_user_token>
+            }
+
+        - Response:
+            success response status code: 200 OK
+            success response sample: [
+                {
+                    "id": 5,
+                    "promo_code": "SomePromoCode5",
+                    "promo_type": "Some Type",
+                    "promo_amount": 500,
+                    "description": "Some Description",
+                    "start_time": "2021-03-31T19:50:08Z",
+                    "end_time": "2021-05-24T20:08:07.127325Z"
+                },
+                {
+                    "id": 6,
+                    "promo_code": "SomePromoCode6",
+                    "promo_type": "Some Type",
+                    "promo_amount": 600,
+                    "description": "Some Description",
+                    "start_time": "2021-03-31T19:50:08Z",
+                    "end_time": "2021-05-24T20:08:07.127325Z"
+                },
+                ...
+            ]
+        ```
+    
+    2. Retreive a promo: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/normal-user/<promo_id>`
+
+        ```
+        - Request:
+            headers = {
+                "Authorization": Token <normal_user_token>
+            }
+
+        - Response:
+            success response status code: 200 OK
+            success response sample:     {
+                "id": 5,
+                "promo_code": "SomePromoCode5",
+                "promo_type": "Some Type",
+                "promo_amount": 500,
+                "description": "Some Description",
+                "start_time": "2021-03-31T19:50:08Z",
+                "end_time": "2021-05-24T20:08:07.127325Z"
+            }
+
+        ```
+
+    3. Deduct some points of a promo: &nbsp;&nbsp;&nbsp; `PATCH {{base_url}}/promos/normal-user/<promo_id>`
+
+
+        | Parameter          | type              | Notes    |
+        | :------------:     | :------:          | :------:    |
+        | amt_to_deduct      | integer           | Must be an integer with a value that's greater than the promo_amount.    |
+
+
+        ```
+        - Request:
+            body sample: {
+                "amt_to_deduct": 200
+            }
+            headers = {
+                "Authorization": Token <normal_user_token>
+            }
+
+        - Response:
+            success response HTTP Status Code: 200 OK
+            success response sample: {
+                promo_amount: 300
+            }
+
+        ```
+
+## Postman collection:
+    https://www.getpostman.com/collections/9de9d84eb9994b6321b8

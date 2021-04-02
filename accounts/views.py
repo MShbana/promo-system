@@ -13,6 +13,9 @@ from .serializers import (
 
 
 class RegisterAdminUser(APIView):
+    """
+    Register admin user.
+    """
     permission_classes = [HasAPIKey, ]
 
     def post(self, request, format=None):
@@ -26,6 +29,9 @@ class RegisterAdminUser(APIView):
 
 
 class RegisterNormalUser(APIView):
+    """
+    Register normal user.
+    """
     permission_classes = [AllowAny, ]
 
     def post(self, request, format=None):

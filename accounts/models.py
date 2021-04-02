@@ -87,6 +87,18 @@ class NormalUser(models.Model):
     def __str__(self):
         return self.user.username
 
+    @property
+    def username(self):
+        return self.user.username
+
+    @property
+    def last_login(self):
+        return self.user.last_login
+
+    @property
+    def date_joined(self):
+        return self.user.date_joined
+
 
 class AdministratorUser(models.Model):
     user = models.OneToOneField(
@@ -100,3 +112,15 @@ class AdministratorUser(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    @property
+    def username(self):
+        return self.user.username
+
+    @property
+    def last_login(self):
+        return self.user.last_login
+
+    @property
+    def date_joined(self):
+        return self.user.date_joined

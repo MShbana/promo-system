@@ -34,6 +34,7 @@ class UserAdmin(BaseUserAdmin):
     )
 
     list_display = [
+        'id',
         'username',
         'is_active',
         'is_staff',
@@ -56,14 +57,20 @@ class UserAdmin(BaseUserAdmin):
 
 class NormalUserAdmin(admin.ModelAdmin):
     list_display = [
-        'user',
+        'id',
+        'username',
         'mobile_number',
+        'last_login',
+        'date_joined',
         'address',
     ]
     
     list_filter = [
         'user__last_login',
         'user__date_joined',
+    ]
+    raw_id_fields = [
+        'user',
     ]
     search_fields = [
         'user__username',
@@ -72,13 +79,19 @@ class NormalUserAdmin(admin.ModelAdmin):
 
 class AdministratorUserAdmin(admin.ModelAdmin):
     list_display = [
-        'user',
+        'id',
+        'username',
+        'last_login',
+        'date_joined',
         'address',
     ]
     
     list_filter = [
         'user__last_login',
         'user__date_joined',
+    ]
+    raw_id_fields = [
+        'user',
     ]
     search_fields = [
         'user__username',

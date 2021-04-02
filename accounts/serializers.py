@@ -49,6 +49,7 @@ class GetAdminUserSerializer(serializers.ModelSerializer):
     """
     address = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
         fields = [

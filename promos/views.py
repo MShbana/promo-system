@@ -38,7 +38,7 @@ class PromoNormalUser(
         viewsets.GenericViewSet
     ):
     """
-    Provide CREATE, READ, UPDATE & DELETE methods for a normal users on their own promos.
+    Provide CREATE, READ, UPDATE (only amount) methods for a normal users on their own promos.
     The token used to call this API must be a normal user's token (the owner of the promo).
     """
     permission_classes = [IsAuthenticated, IsNormalUserAndOwner]

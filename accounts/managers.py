@@ -47,4 +47,7 @@ class UserManager(BaseUserManager):
         return user
 
     def get_by_natural_key(self, username):
+        """
+        Make sure username filteration is case insensitive to prevent duplicated.
+        """
         return self.get(username__iexact=username)

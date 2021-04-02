@@ -6,6 +6,9 @@ from .models import (
 
 
 class RegisterUserBase:
+    """
+    Base class, inherited by both RegisterAdminUser & RegisterNormalUser classes.
+    """
     def __init__(self, validated_data):
         self.validated_data = validated_data
 
@@ -16,6 +19,8 @@ class RegisterUserBase:
 
     def existing_user_name(self):
         username = self.validated_data['username']
+
+        # Make sure username filteration is case insensitive to prevent duplicated.
         return User.objects.filter(username__iexact=username).exists()
 
 
