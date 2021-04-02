@@ -59,6 +59,7 @@ promos and can use the promo points in a specific task of their choosing.
         ```
     - `python manage.py migrate`
     - `python manage runserver`
+    - `python manage.py test`
     - `python manage.py createsuperuser`
         ```
         Username: admin
@@ -94,7 +95,7 @@ promos and can use the promo points in a specific task of their choosing.
 
         | Parameter     | Required  | type    | Notes   |
         | :------------:| :--------:| :------:| :----  |
-        | Api-Key       | Yes       | string  | Sent to clients who consume the registration endpoint. |
+        | Api-Key       | Yes       | string  | Sent to clients who consume the admin registration endpoint. |
         | username      | Yes       | string  |         |
         | name          | Yes       | string  |         |
         | password      | Yes       | string  |         |
@@ -104,11 +105,11 @@ promos and can use the promo points in a specific task of their choosing.
         ```
         - Request:
             body sample: {
-                "username": <username>,
-                "name": <name>,
-                "password": <password>,
-                "password2": <password>,
-                "address": <address> 
+                "username": "AdminUserName",
+                "name": "Admin Name",
+                "password": "Some Password",
+                "password2": "Some Password",
+                "address": "Some Address" 
             }
             headers sample: {
                 Authorization: Api-Key <client_api_key>
@@ -117,10 +118,10 @@ promos and can use the promo points in a specific task of their choosing.
         - Response:
             success response status code: 201 Created
             success response sample: {
-                "id": <normal_user_id>,
-                "username": <username>,
-                "name": <name>,
-                "address": <address_or_empty_str>,
+                "id": 10,
+                "username": "AdminUserName",
+                "name": "Admin Name",
+                "address": "Some Address",
                 "auth_token": <auth_token>
             }
         ```
@@ -139,12 +140,12 @@ promos and can use the promo points in a specific task of their choosing.
         ```
         - Request:
             body sample: {
-                "username": <username>,
-                "name": <name>,
-                "password": <password>,
-                "password2": <password>,
-                "mobile_number": <mobile_number>,
-                "address": <address> 
+                "username": "NormalUserName",
+                "name": "Some Name",
+                "password": "Some Password",
+                "password2": "Some Password",
+                "mobile_number": "01234567891",
+                "address": "Some Address"
             }
             headers sample: {
                 Authorization: Api-Key <client_api_key>
@@ -153,11 +154,11 @@ promos and can use the promo points in a specific task of their choosing.
         - Response:
             success response status code: 201 Created
             success response sample: {
-                "id": <normal_user_id>,
-                "username": <username>,
-                "name": <name>,
-                "mobile_number": <mobile_number
-                "address": <address_or_empty_str>,
+                "id": 15,
+                "username": "NormalUserName",
+                "name": "Some Name",
+                "mobile_number": "01234567891",
+                "address": "Some Address",
                 "auth_token": <auth_token>
             }
         ```
@@ -172,19 +173,18 @@ promos and can use the promo points in a specific task of their choosing.
         ```
         - Request:
             body sample: {
-                "username": <username>,
-                "password": <password>,
-
+                "username": "Some username",
+                "password": "Some password"
             }
 
         - Response:
             success response status code: 200 OK
             success response sample: {
-                "auth_token": <authenticated_user_auth_token>
+                "auth_token": <auth_token>
             }
         ```
 
-- Promos adminstrating
+- **Promos adminstrating**
 
     | Parameter      | Required     | type              | Notes     |
     | :------------: | :------:     | :------:          |  :------: |
@@ -198,7 +198,7 @@ promos and can use the promo points in a specific task of their choosing.
     | is_active      | No           | boolean           | Defaults to true if not sent.          |
 
 
-    1. Create a promo: &nbsp;&nbsp;&nbsp; `POST {{base_url}}/promos/admin-user/`
+    1. **Create a promo** &nbsp;&nbsp;&nbsp; `POST {{base_url}}/promos/admin-user/`
         
         ```
         - Request:
@@ -229,8 +229,9 @@ promos and can use the promo points in a specific task of their choosing.
                 "is_active": true,
                 "normal_user": 2
             }
-    2. List all existing promos: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/admin-user/`
+    2. **List all existing promos** &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/admin-user/`
 
+        *Each page returns 5 objects, response.next returns the next 5 objects.*
         ```
         - Request:
             headers = {
@@ -239,36 +240,41 @@ promos and can use the promo points in a specific task of their choosing.
 
         - Response:
             success response status code: 200 OK
-            success response sample: [
-                {
-                    "id": 1,
-                    "promo_code": "SomePromoCode1",
-                    "promo_type": "Some Type",
-                    "promo_amount": 100,
-                    "description": "Some Description",
-                    "creation_time": "2021-04-01T00:42:54.433292Z",
-                    "start_time": "2021-03-31T19:50:08Z",
-                    "end_time": "2021-05-24T19:50:08Z",
-                    "is_active": true,
-                    "normal_user": 3
-                },
-                {
-                    "id": 2,
-                    "promo_code": "SomePromoCode2",
-                    "promo_type": "Some Type",
-                    "promo_amount": 200,
-                    "description": "Some Description",
-                    "creation_time": "2021-04-01T00:44:25.731714Z",
-                    "start_time": "2021-03-31T19:50:08Z",
-                    "end_time": "2021-05-24T19:50:08Z",
-                    "is_active": true,
-                    "normal_user": 3
-                },
+            success response sample: {
+                "count": 3,
+                "next": "{{base_url}}/promos/admin-user/?page=2",
+                "previous": null,
+                "results": [
+                    {
+                        "id": 1,
+                        "promo_code": "SomePromoCode1",
+                        "promo_type": "Some Type",
+                        "promo_amount": 100,
+                        "description": "Some Description",
+                        "creation_time": "2021-04-01T00:42:54.433292Z",
+                        "start_time": "2021-03-31T19:50:08Z",
+                        "end_time": "2021-05-24T19:50:08Z",
+                        "is_active": true,
+                        "normal_user": 3
+                    },
+                    {
+                        "id": 2,
+                        "promo_code": "SomePromoCode2",
+                        "promo_type": "Some Type",
+                        "promo_amount": 200,
+                        "description": "Some Description",
+                        "creation_time": "2021-04-01T00:44:25.731714Z",
+                        "start_time": "2021-03-31T19:50:08Z",
+                        "end_time": "2021-05-24T19:50:08Z",
+                        "is_active": true,
+                        "normal_user": 3
+                    },
                 ...
-            ]
+                ]
+            }
         ```
     
-    3. Retreive a promo: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/admin-user/<promo_id>`
+    3. **Retreive a promo** &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/admin-user/<promo_id>`
 
         ```
         - Request:
@@ -292,17 +298,15 @@ promos and can use the promo points in a specific task of their choosing.
             }
 
         ```
-    4. Update a promo: &nbsp;&nbsp;&nbsp; `PATCH {{base_url}}/promos/admin-user/<promo_id>`
+    4. **Update a promo** &nbsp;&nbsp;&nbsp; `PATCH {{base_url}}/promos/admin-user/<promo_id>`
 
         *You can send one or more values to change.*
 
         ```
         - Request:
             body sample: {
-                {
-                    "promo_type": "Promo Type Updated",
-                    "is_active": false
-                }
+                "promo_type": "Promo Type Updated",
+                "is_active": false
             }
             headers = {
                 "Authorization": Token <admin_user_token>
@@ -324,16 +328,10 @@ promos and can use the promo points in a specific task of their choosing.
             }
 
         ```
-    5. Delete a promo: &nbsp;&nbsp;&nbsp; `DELETE {{base_url}}/promos/admin-user/<promo_id>`
+    5. **Delete a promo** &nbsp;&nbsp;&nbsp; `DELETE {{base_url}}/promos/admin-user/<promo_id>`
 
         ```
         - Request:
-            body sample: {
-                {
-                    "promo_type": "Promo Type Updated",
-                    "is_active": false
-                }
-            }
             headers = {
                 "Authorization": Token <admin_user_token>
             }
@@ -343,8 +341,9 @@ promos and can use the promo points in a specific task of their choosing.
             success response sample: None
         ```
 
-- User promos
-    1. List all existing promos: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/normal-user/`
+- **User promos**
+    1. **List all existing promos** &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/normal-user/`
+        *Each page returns 5 objects, response.next returns the next 5 objects.*
         
         ```
         - Request:
@@ -354,30 +353,35 @@ promos and can use the promo points in a specific task of their choosing.
 
         - Response:
             success response status code: 200 OK
-            success response sample: [
-                {
-                    "id": 5,
-                    "promo_code": "SomePromoCode5",
-                    "promo_type": "Some Type",
-                    "promo_amount": 500,
-                    "description": "Some Description",
-                    "start_time": "2021-03-31T19:50:08Z",
-                    "end_time": "2021-05-24T20:08:07.127325Z"
-                },
-                {
-                    "id": 6,
-                    "promo_code": "SomePromoCode6",
-                    "promo_type": "Some Type",
-                    "promo_amount": 600,
-                    "description": "Some Description",
-                    "start_time": "2021-03-31T19:50:08Z",
-                    "end_time": "2021-05-24T20:08:07.127325Z"
-                },
-                ...
-            ]
+            success response sample: {
+                "count": 1,
+                "next": null,
+                "previous": null,
+                "results": [
+                    {
+                        "id": 5,
+                        "promo_code": "SomePromoCode5",
+                        "promo_type": "Some Type",
+                        "promo_amount": 500,
+                        "description": "Some Description",
+                        "start_time": "2021-03-31T19:50:08Z",
+                        "end_time": "2021-05-24T20:08:07.127325Z"
+                    },
+                    {
+                        "id": 6,
+                        "promo_code": "SomePromoCode6",
+                        "promo_type": "Some Type",
+                        "promo_amount": 600,
+                        "description": "Some Description",
+                        "start_time": "2021-03-31T19:50:08Z",
+                        "end_time": "2021-05-24T20:08:07.127325Z"
+                    },
+                    ...
+                ]
+            }
         ```
     
-    2. Retreive a promo: &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/normal-user/<promo_id>`
+    2. **Retreive a promo** &nbsp;&nbsp;&nbsp; `GET {{base_url}}/promos/normal-user/<promo_id>`
 
         ```
         - Request:
@@ -399,13 +403,11 @@ promos and can use the promo points in a specific task of their choosing.
 
         ```
 
-    3. Deduct some points of a promo: &nbsp;&nbsp;&nbsp; `PATCH {{base_url}}/promos/normal-user/<promo_id>`
-
+    3. **Deduct some points of a promo** &nbsp;&nbsp;&nbsp; `PATCH {{base_url}}/promos/normal-user/<promo_id>`
 
         | Parameter          | type              | Notes    |
         | :------------:     | :------:          | :------:    |
         | amt_to_deduct      | integer           | Must be an integer with a value that's greater than the promo_amount.    |
-
 
         ```
         - Request:
