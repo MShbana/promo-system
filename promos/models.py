@@ -28,6 +28,10 @@ class Promo(models.Model):
         default=True
     )
 
+    class Meta:
+        ordering = [
+            '-id',
+        ]
 
     def __str__(self):
         return self.promo_code

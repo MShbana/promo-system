@@ -24,7 +24,7 @@ urlpatterns = [
         '',
         lambda request: HttpResponse(
             f"""
-            <h1>You can find all the available endpoints in
+            <h1>You can find all the available routes/endpoints on 
             <a href="{github_project_url}">GitHub</a>.</h1>
             """
         )
